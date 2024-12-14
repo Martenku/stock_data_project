@@ -20,15 +20,14 @@ services:
     stdin_open: true
     tty: true
     build:
-      context: ./minio
+      context: .
+      dockerfile: Dockerfile
     volumes:
     - duckdb_data:/app/data
     networks:
       - shared_network
 
-networks:
-  shared_network:
-    external: true
+
 
 volumes:
   minio_data:

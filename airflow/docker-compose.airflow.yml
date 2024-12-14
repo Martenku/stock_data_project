@@ -16,18 +16,11 @@ services:
       AIRFLOW__WEBSERVER__WEB_SERVER_WORKER_TIMEOUT: 300
       AIRFLOW__WEBSERVER__WORKERS: 1 #increase if becoming bottleneck
      # _PIP_ADDITIONAL_REQUIREMENTS: "yfinance pandas" # testing only, prefer dockerfile
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
       - airflow_logs:/opt/airflow/logs
       - ./airflow/dags:/opt/airflow/dags
-    env_file:
-      - .env  
-    networks:
-      - shared_network
     command: webserver  # Ensure the webserver starts
 
   airflow-scheduler:
@@ -40,10 +33,7 @@ services:
     volumes:
       - airflow_logs:/opt/airflow/logs
       - ./airflow/dags:/opt/airflow/dags
-    env_file:
-      - .env  
-    networks:
-      - shared_network
+
     command: scheduler  # Ensure the scheduler starts
 
   airflow-init:
@@ -59,8 +49,6 @@ services:
       AIRFLOW__CORE__EXECUTOR: "CeleryExecutor"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@airflow-postgres:5432/${POSTGRES_DB}"
 
-    networks:
-      - shared_network
     command: db init  # Initializes the Airflow database
 
   airflow-postgres:
@@ -72,13 +60,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - airflow_postgres_data:/var/lib/postgresql/data
-    networks:
-      - shared_network
 
   redis:
     image: redis:6
     container_name: airflow-redis
     ports:
       - "6379:6379"
-    networks:
-      - shared_network
